@@ -1,7 +1,7 @@
 import 'package:faber_ticket_sl/screens/main_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:faber_ticket_sl/utils/constants.dart';
-// import 'package:faber_ticket_sl/screens/custom_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SongScreen extends StatefulWidget {
@@ -41,16 +41,40 @@ class _SongScreenState extends State<SongScreen> {
     SongInfo('Welcome to the Show', 'Fourever', 'https://youtu.be/RowlrvmyFEk?si=7IQyAJQeL8oL9acK', 27),
   ];
   int _currentIndex = 0;
+  ImageProvider? _backgroundImage; //customBackground
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBackgroundImage();
+  }
+
+  Future<void> _loadBackgroundImage() async {
+    try {
+      final urlParams = Uri.base.queryParameters;
+      final setlistBackground = urlParams['cs']; // cs 파라미터 사용
+
+      if (setlistBackground != null) {
+        final ref = FirebaseStorage.instance.ref("images/$setlistBackground");
+        final url = await ref.getDownloadURL();
+        setState(() => _backgroundImage = NetworkImage(url));
+      }
+    } catch (e) {
+      print("배경 이미지 로드 실패: $e");
+      setState(() => _backgroundImage = AssetImage(Constants.setlistBackgroundImage));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
+          if (_backgroundImage != null)
+            Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(Constants.setlistBackgroundImage),
+                image: _backgroundImage!,
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
               ),
