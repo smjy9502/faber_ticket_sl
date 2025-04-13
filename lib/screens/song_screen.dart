@@ -58,6 +58,9 @@ class _SongScreenState extends State<SongScreen> {
         final ref = FirebaseStorage.instance.ref("images/$setlistBackground");
         final url = await ref.getDownloadURL();
         setState(() => _backgroundImage = NetworkImage(url));
+      } else {
+        //파라미터가 없는 경우 기본 이미지 로드
+        setState(() => _backgroundImage = AssetImage(Constants.setlistBackgroundImage));
       }
     } catch (e) {
       print("배경 이미지 로드 실패: $e");
