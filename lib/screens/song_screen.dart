@@ -41,7 +41,7 @@ class _SongScreenState extends State<SongScreen> {
     SongInfo('Welcome to the Show', 'Fourever', 'https://youtu.be/RowlrvmyFEk?si=7IQyAJQeL8oL9acK', 27),
   ];
   int _currentIndex = 0;
-  ImageProvider? _backgroundImage; //customBackground
+  ImageProvider? _songBackground; //customBackground
 
   @override
   void initState() {
@@ -52,34 +52,34 @@ class _SongScreenState extends State<SongScreen> {
   Future<void> _loadBackgroundImage() async {
     try {
       final urlParams = Uri.base.queryParameters;
-      final setlistBackground = urlParams['cs']; // cs 파라미터 사용
+      final songBackground = urlParams['cs']; // cs 파라미터 사용
 
-      if (setlistBackground != null) {
-        final ref = FirebaseStorage.instance.ref("images/$setlistBackground");
+      if (songBackground != null) {
+        final ref = FirebaseStorage.instance.ref("images/$songBackground");
         final url = await ref.getDownloadURL();
-        setState(() => _backgroundImage = NetworkImage(url));
+        setState(() => _songBackground = NetworkImage(url));
       } else {
-        //파라미터가 없는 경우 기본 이미지 로드
-        setState(() => _backgroundImage = AssetImage(Constants.setlistBackgroundImage));
+        throw Exception('Custom Image 파라미터 없음');
       }
     } catch (e) {
-      print("배경 이미지 로드 실패: $e");
-      setState(() => _backgroundImage = AssetImage(Constants.setlistBackgroundImage));
+      print("이미지 로드 실패: $e");
+      setState(() => _songBackground = AssetImage(Constants.setlistBackgroundImage));
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          if (_backgroundImage != null)
+          if (_songBackground != null)
             Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: _backgroundImage!,
+                image: _songBackground!,
                 fit: BoxFit.cover,
-                alignment: Alignment.center,
+                // alignment: Alignment.center,
               ),
             ),
           ),
