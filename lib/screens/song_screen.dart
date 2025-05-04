@@ -3,6 +3,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:faber_ticket_sl/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html; // For url cleansing
+
 
 class SongScreen extends StatefulWidget {
   @override
@@ -46,13 +48,24 @@ class _SongScreenState extends State<SongScreen> {
   @override
   void initState() {
     super.initState();
-    _loadBackgroundImage();
+    _loadBackgroundImage().then((_){
+      // 매개변수 읽은 후 URL에서 제거
+      html.window.history.replaceState({}, '', '/song');
+    });
   }
 
   Future<void> _loadBackgroundImage() async {
     try {
-      final urlParams = Uri.base.queryParameters;
-      final songBackground = urlParams['cs']; // cs 파라미터 사용
+      // final urlParams = Uri.base.queryParameters;
+      // final songBackground = urlParams['cs']; // cs 파라미터 사용
+      // sessionStorage에서 매개변수 읽기
+      final storedParams = html.window.sessionStorage['params'];
+      final urlParams = storedParams != null
+          ? Uri(query: storedParams).queryParameters
+          : Uri.base.queryParameters;
+
+      final songBackground = urlParams['cs'];
+      //이 위까지 수정
 
       if (songBackground != null) {
         final ref = FirebaseStorage.instance.ref("images/$songBackground");
